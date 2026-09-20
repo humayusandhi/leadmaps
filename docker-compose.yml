@@ -1,0 +1,117 @@
+name: leadmap-ai
+
+services:
+  # PostgreSQL 16 Relational Store
+  postgres:
+    image: postgres:16-alpine
+    container_name: leadmap_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-leadmap_ai}
+      POSTGRES_USER: ${DB_USERNAME:-leadmap_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-leadmap_secret}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - leadmap_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-leadmap_user} -d ${DB_DATABASE:-leadmap_ai}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis 7 In-Memory Cache & Job Queue Broker
+  redis:
+    image: redis:7-alpine
+    container_name: leadmap_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - leadmap_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Laravel 11 Backend API Monolith
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.api
+    container_name: leadmap_api
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    volumes:
+      - ./apps/api:/var/www/html
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - leadmap_net
+
+  # Laravel Horizon Asynchronous Queue Supervisor
+  worker:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.worker
+    container_name: leadmap_worker
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      DB_HOST: postgres
+      REDIS_HOST: redis
+    volumes:
+      - ./apps/api:/var/www/html
+    depends_on:
+      api:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    networks:
+      - leadmap_net
+
+  # Next.js 15+ Frontend Web Application
+  web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.web
+    container_name: leadmap_web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./apps/web:/app/apps/web
+      - ./packages:/app/packages
+      - /app/apps/web/node_modules
+      - /app/apps/web/.next
+    depends_on:
+      - api
+    networks:
+      - leadmap_net
+
+networks:
+  leadmap_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

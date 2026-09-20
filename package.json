@@ -1,0 +1,32 @@
+{
+  "name": "leadmap-ai-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LeadMap AI — B2B SaaS Sales Intelligence & Local Prospecting Monorepo",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev:web",
+    "dev:web": "npm --prefix apps/web run dev",
+    "build:web": "npm --prefix apps/web run build",
+    "lint:web": "npm --prefix apps/web run lint",
+    "typecheck:web": "npm --prefix apps/web run typecheck",
+    "test:web": "npm --prefix apps/web run test",
+    "build:types": "npm --prefix packages/shared-types run build"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "keywords": [
+    "lead-generation",
+    "sales-intelligence",
+    "google-places",
+    "local-business",
+    "saas"
+  ],
+  "author": "LeadMap AI Team",
+  "license": "UNLICENSED"
+}

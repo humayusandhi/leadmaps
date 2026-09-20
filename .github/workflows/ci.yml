@@ -1,0 +1,29 @@
+name: LeadMap AI CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  validate-workspace:
+    name: Workspace Integrity Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Validate Compose Config
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('docker-compose.yml'))"
+
+      - name: Check Environment Template
+        run: |
+          test -f .env.example

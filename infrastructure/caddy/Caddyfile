@@ -1,0 +1,35 @@
+# ==============================================================================
+# LeadMap AI — Production Caddy Reverse Proxy Configuration
+# ==============================================================================
+
+# API Domain
+api.leadmap.ai {
+    encode gzip zstd
+
+    # Security Headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Route API requests to Laravel backend
+    reverse_proxy api:8000
+}
+
+# Web App & Marketing Domain
+app.leadmap.ai, www.leadmap.ai {
+    encode gzip zstd
+
+    # Security Headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Route web requests to Next.js container
+    reverse_proxy web:3000
+}

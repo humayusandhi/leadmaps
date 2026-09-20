@@ -1,0 +1,38 @@
+# Laravel 11 Backend API Dockerfile (PHP 8.3-FPM)
+FROM php:8.3-fpm-alpine AS base
+
+WORKDIR /var/www/html
+
+# Install system dependencies & PHP extensions
+RUN apk add --no-cache \
+    git \
+    curl \
+    libpng-dev \
+    oniguruma-dev \
+    libxml2-dev \
+    postgresql-dev \
+    zip \
+    unzip \
+    linux-headers \
+    $PHPIZE_DEPS \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd \
+    && apk del $PHPIZE_DEPS
+
+# Get latest Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Development stage
+FROM base AS dev
+EXPOSE 8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+
+# Production stage
+FROM base AS prod
+COPY apps/api/composer.json apps/api/composer.lock* ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+COPY apps/api/ .
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+EXPOSE 9000
+CMD ["php-fpm"]

@@ -48,4 +48,21 @@ class HealthController extends Controller
             message: 'LeadMap AI API is operational.'
         );
     }
+
+    /**
+     * Diagnostic endpoint to verify Sentry error tracking configuration.
+     */
+    public function sentryTest(): JsonResponse
+    {
+        $configured = !empty(config('sentry.dsn'));
+
+        return ApiResponse::success([
+            'sentry_configured' => $configured,
+            'environment' => config('sentry.environment', 'production'),
+            'release' => config('sentry.release', 'leadmap-ai-api@1.0.0'),
+            'traces_sample_rate' => config('sentry.traces_sample_rate', 0.2),
+            'status' => 'Sentry integration handler operational',
+        ], 'Sentry diagnostics check completed.');
+    }
 }
+

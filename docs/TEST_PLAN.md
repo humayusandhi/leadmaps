@@ -1,6 +1,6 @@
 # LeadMap AI — Master Verification & Test Plan
 
-**Document:** `TEST_PLAN.md` & `docs/TEST_PLAN.md`  
+**Document:** `docs/TEST_PLAN.md`  
 **Status:** Active Quality Baseline  
 **Purpose:** Defines the concrete, testable criteria for what "working" actually means across every layer of LeadMap AI. This document serves as the mandatory checklist for automated test suites (Pest, Vitest) and manual QA before completing any feature.
 

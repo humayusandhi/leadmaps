@@ -2,15 +2,28 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { DoubleBezelCard } from '@/components/ui/double-bezel-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Sparkles, Zap } from 'lucide-react';
 
-export default function RegisterPage() {
+const PLAN_INFO: Record<string, { name: string; credits: number }> = {
+  free: { name: 'Free Explorer', credits: 50 },
+  starter: { name: 'Starter Prospector', credits: 500 },
+  growth: { name: 'Growth Agency', credits: 2000 },
+  scale: { name: 'Scale Enterprise', credits: 6000 },
+  pro: { name: 'Pro Enterprise', credits: 5000 },
+  agency: { name: 'Agency High-Volume', credits: 15000 },
+};
+
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const planParam = searchParams.get('plan')?.toLowerCase() || 'free';
+  const selectedPlanInfo = PLAN_INFO[planParam] || PLAN_INFO.free;
+
   const { user, register, isLoading: isAuthLoading } = useAuth();
 
   const [name, setName] = React.useState('');
@@ -42,7 +55,7 @@ export default function RegisterPage() {
     try {
       setIsSubmitting(true);
       setError(null);
-      await register(name, email, password, workspaceName.trim() || undefined);
+      await register(name, email, password, workspaceName.trim() || undefined, planParam);
       router.push('/dashboard');
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -127,6 +140,21 @@ export default function RegisterPage() {
             helperText="You can invite team members and add more workspaces later"
           />
 
+          {/* Selected Plan & Credit Quota Badge */}
+          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between text-xs font-mono">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div>
+                <span className="text-slate-400 block text-[10px] uppercase tracking-wider">Selected Plan</span>
+                <span className="font-bold text-white font-sans">{selectedPlanInfo.name}</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="text-slate-400 block text-[10px] uppercase tracking-wider">Active Credits</span>
+              <span className="font-bold text-emerald-400">+{selectedPlanInfo.credits.toLocaleString()} cr</span>
+            </div>
+          </div>
+
           <div className="pt-2">
             <Button
               type="submit"
@@ -136,7 +164,11 @@ export default function RegisterPage() {
               withTrailingIcon
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Provisioning Workspace...' : 'Launch Free Account'}
+              {isSubmitting
+                ? 'Provisioning Workspace...'
+                : planParam === 'free'
+                ? 'Launch Free Account (50 Credits)'
+                : `Activate ${selectedPlanInfo.name} (${selectedPlanInfo.credits.toLocaleString()} Credits)`}
             </Button>
           </div>
         </form>
@@ -153,5 +185,21 @@ export default function RegisterPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="w-full h-80 rounded-2xl bg-white/[0.02] border border-white/[0.08] animate-pulse flex items-center justify-center">
+          <span className="text-xs font-mono text-slate-500 uppercase tracking-widest">
+            Loading Workspace Portal...
+          </span>
+        </div>
+      }
+    >
+      <RegisterForm />
+    </React.Suspense>
   );
 }

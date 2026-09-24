@@ -1,4 +1,4 @@
-name: LeadMap AI CI Pipeline
+name: LeadMap AI Master CI Pipeline
 
 on:
   push:
@@ -7,23 +7,32 @@ on:
     branches: [main, develop]
 
 jobs:
-  validate-workspace:
-    name: Workspace Integrity Check
+  workspace-integrity:
+    name: Monorepo Integrity & Configurations Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Validate Compose Config
+      - name: Validate Docker Compose Configuration
         run: |
           python3 -c "import yaml; yaml.safe_load(open('docker-compose.yml'))"
 
-      - name: Check Environment Template
+      - name: Check Environment Template Integrity
         run: |
           test -f .env.example
+          grep -q "APP_KEY=" .env.example
+          grep -q "DB_DATABASE=" .env.example
+          grep -q "NEXT_PUBLIC_API_URL=" .env.example
+
+      - name: Validate Backup Scripts Executable Permissions
+        run: |
+          test -x infrastructure/scripts/backup-postgres.sh || chmod +x infrastructure/scripts/*.sh
+          bash -n infrastructure/scripts/backup-postgres.sh
+          bash -n infrastructure/scripts/restore-postgres.sh

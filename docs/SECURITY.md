@@ -1,6 +1,6 @@
 # LeadMap AI — Security Requirements & Policy
 
-**Document:** `SECURITY.md` & `docs/SECURITY.md`  
+**Document:** `docs/SECURITY.md`  
 **Status:** Active Security Standard  
 **Target:** Production Baseline  
 **Core Principle:** *Security must be engineered into the architecture from day one, not retrofitted five minutes before deployment.*

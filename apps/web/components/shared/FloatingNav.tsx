@@ -10,16 +10,20 @@ import {
   LayoutDashboard,
   MapPin,
   ListFilter,
+  Layers,
+  CreditCard,
   LogOut,
   User,
   Menu,
   X,
   Sparkles,
+  Share2,
+  ShieldAlert,
 } from 'lucide-react';
 
 export function FloatingNav() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, activeWorkspace, logout } = useAuth();
   const [profileOpen, setProfileOpen] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const profileRef = React.useRef<HTMLDivElement>(null);
@@ -35,11 +39,23 @@ export function FloatingNav() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const navLinks = [
+  // Check if current user has super admin privileges
+  const isSuperAdmin =
+    user?.email?.toLowerCase().includes('admin') ||
+    user?.email?.toLowerCase() === 'operator@leadmap.ai';
+
+  const baseNavLinks = [
     { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
-    { label: 'Discovery', href: '/dashboard/discovery', icon: MapPin },
-    { label: 'Pipeline', href: '/dashboard/pipeline', icon: ListFilter },
+    { label: 'Finder', href: '/finder', icon: MapPin },
+    { label: 'Pipeline', href: '/pipeline', icon: ListFilter },
+    { label: 'Lists', href: '/lists', icon: Layers },
+    { label: 'Integrations', href: '/integrations', icon: Share2 },
+    { label: 'Billing', href: '/billing', icon: CreditCard },
   ];
+
+  const navLinks = isSuperAdmin
+    ? [...baseNavLinks, { label: 'Super Admin', href: '/admin', icon: ShieldAlert }]
+    : baseNavLinks;
 
   return (
     <nav className="sticky top-4 z-40 mx-auto max-w-6xl w-[calc(100%-2rem)] rounded-full bg-[#111318]/85 backdrop-blur-xl border border-white/[0.08] px-4 sm:px-6 py-2.5 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all">
@@ -69,7 +85,9 @@ export function FloatingNav() {
         {/* Center Section: Primary Navigation Links (Desktop) */}
         <div className="hidden md:flex items-center gap-1">
           {navLinks.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive =
+              pathname === item.href ||
+              (item.href === '/finder' && (pathname === '/finder' || pathname === '/discovery'));
             const Icon = item.icon;
             return (
               <Link
@@ -91,14 +109,23 @@ export function FloatingNav() {
         {/* Right Section: Credit Ticker & User Profile */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Credit Ticker Badge */}
-          <div
-            title="Available discovery credits"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.08] text-xs font-mono text-slate-300 select-none"
+          <Link
+            href="/billing"
+            title={`Active Plan: ${activeWorkspace?.tier || 'FREE'} — Click to manage credits`}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs font-mono text-slate-300 select-none transition-colors"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <span className="font-medium text-slate-200">2,500</span>
+            <span className="font-semibold text-emerald-400 text-[10px] uppercase tracking-wider hidden sm:inline">
+              {activeWorkspace?.tier || 'FREE'}
+            </span>
+            <span className="text-slate-600 hidden sm:inline">&bull;</span>
+            <span className="font-medium text-slate-200">
+              {activeWorkspace?.credit_balance !== undefined
+                ? activeWorkspace.credit_balance.toLocaleString()
+                : '25'}
+            </span>
             <span className="text-[10px] text-slate-500 uppercase">cr</span>
-          </div>
+          </Link>
 
           {/* User Profile Popover Trigger */}
           <div className="relative" ref={profileRef}>
@@ -127,10 +154,26 @@ export function FloatingNav() {
                 </div>
 
                 <div className="py-1">
-                  <div className="px-3.5 py-1.5 flex items-center gap-2 text-xs text-slate-400">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Role: <strong className="text-slate-200 uppercase font-mono text-[10px]">Owner</strong></span>
+                  <div className="px-3.5 py-1.5 flex items-center justify-between text-xs text-slate-400">
+                    <span className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Plan Tier:</span>
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25">
+                      {activeWorkspace?.tier || 'FREE'}
+                    </span>
                   </div>
+
+                  {isSuperAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-3.5 py-1.5 text-xs text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors font-mono"
+                    >
+                      <ShieldAlert className="w-3.5 h-3.5" />
+                      <span>Super Admin Plane</span>
+                    </Link>
+                  )}
                 </div>
 
                 <div className="border-t border-white/[0.06] pt-1 mt-1 px-1">
@@ -164,7 +207,9 @@ export function FloatingNav() {
       {mobileMenuOpen && (
         <div className="md:hidden mt-3 pt-3 border-t border-white/[0.08] flex flex-col gap-1 pb-1">
           {navLinks.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive =
+              pathname === item.href ||
+              (item.href === '/finder' && (pathname === '/finder' || pathname === '/discovery'));
             const Icon = item.icon;
             return (
               <Link

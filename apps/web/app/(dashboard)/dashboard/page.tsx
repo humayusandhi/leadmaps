@@ -187,10 +187,18 @@ export default function DashboardOverviewPage() {
           </div>
           <div className="mt-4">
             <div className="text-3xl font-mono font-bold text-white tracking-tight">
-              2,500 <span className="text-xs font-normal text-slate-500">/ 5,000</span>
+              {(activeWorkspace?.credit_balance ?? 25).toLocaleString()}{' '}
+              <span className="text-xs font-normal text-slate-500">
+                / {((activeWorkspace?.credit_balance ?? 25) > 500 ? 2000 : 500).toLocaleString()}
+              </span>
             </div>
             <div className="w-full bg-white/[0.08] h-1.5 rounded-full mt-2.5 overflow-hidden">
-              <div className="bg-emerald-500 h-full w-1/2 rounded-full" />
+              <div 
+                className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
+                style={{
+                  width: `${Math.min(100, Math.max(5, Math.round(((activeWorkspace?.credit_balance ?? 25) / ((activeWorkspace?.credit_balance ?? 25) > 500 ? 2000 : 500)) * 100)))}%`
+                }}
+              />
             </div>
           </div>
         </DoubleBezelCard>

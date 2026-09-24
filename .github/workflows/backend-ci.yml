@@ -1,0 +1,55 @@
+name: Backend CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/api/**'
+      - 'infrastructure/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/api/**'
+      - 'infrastructure/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  backend-security-and-features:
+    name: PHP Feature & Security Test Suites
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, openssl, json, curl, pdo, pdo_pgsql, redis
+          coverage: none
+
+      - name: Validate Composer Configuration
+        run: |
+          if [ -f apps/api/composer.json ]; then
+            cd apps/api && composer validate --no-check-all --strict
+          fi
+
+      - name: Run Security & Penetration Tests (OWASP Top 10, SSRF, IDOR, SQLi, Encryption)
+        run: php apps/api/tests/Feature/SecurityAndPenetrationTest.php
+
+      - name: Run Structured Logging, Request Correlation & Sentry Tests
+        run: php apps/api/tests/Feature/LoggingAndCorrelationTest.php
+
+      - name: Run CRM & RiffCRM Direct Sync Feature Tests
+        run: php apps/api/tests/Feature/RiffCRMSyncTest.php
+
+      - name: Run Credit Engine & Concurrency Tests
+        run: php apps/api/tests/Feature/CreditEngineConcurrencyTest.php
+
+      - name: Run Multi-Channel Outreach & CSV RFC 4180 Tests
+        run: php apps/api/tests/Feature/OutreachAndExportTest.php
+
+      - name: Verify Automated Database Backup & GPG Restore Pipeline
+        run: bash infrastructure/scripts/test-backup-restore.sh

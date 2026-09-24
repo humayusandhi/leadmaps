@@ -1,6 +1,6 @@
 # LeadMap AI — Architectural Decision Records (ADRs)
 
-**Document:** `DECISIONS.md` & `docs/DECISIONS.md`  
+**Document:** `docs/DECISIONS.md`  
 **Status:** Active & Enforced  
 **Purpose:** Permanent record of architectural, technical, and engineering decisions. These decisions are binding for all developers, pair programmers, and AI coding agents to prevent accidental refactoring or drift from core principles.
 

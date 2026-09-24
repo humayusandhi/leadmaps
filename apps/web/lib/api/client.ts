@@ -1,6 +1,6 @@
 import type { ApiResponse } from '@leadmap/shared-types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 export class ApiError extends Error {
   public statusCode: number;
@@ -51,13 +51,29 @@ export async function apiClient<T>(
     ...(headers as Record<string, string>),
   };
 
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const defaultBase = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
+  const resolvedBase = API_BASE_URL.startsWith('http') ? API_BASE_URL : `${defaultBase}${API_BASE_URL}`;
+  const url = endpoint.startsWith('http') ? endpoint : `${resolvedBase}${endpoint}`;
 
   try {
-    const response = await fetch(url, {
-      ...customConfig,
-      headers: requestHeaders,
-    });
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        ...customConfig,
+        headers: requestHeaders,
+      });
+    } catch (fetchError) {
+      // If external target failed (e.g. port 8000 offline in local preview), retry against internal route
+      if ((url.includes(':8000') || !url.startsWith('/')) && typeof window !== 'undefined') {
+        const fallbackUrl = `/api/v1${endpoint}`;
+        response = await fetch(fallbackUrl, {
+          ...customConfig,
+          headers: requestHeaders,
+        });
+      } else {
+        throw fetchError;
+      }
+    }
 
     const data: ApiResponse<T> = await response.json().catch(() => ({
       success: false,
@@ -121,3 +137,9 @@ export const api = {
   delete: <T>(endpoint: string, options?: RequestOptions) =>
     apiClient<T>(endpoint, { method: 'DELETE', ...options }),
 };
+
+apiClient.get = api.get;
+apiClient.post = api.post;
+apiClient.put = api.put;
+apiClient.patch = api.patch;
+apiClient.delete = api.delete;

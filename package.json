@@ -10,9 +10,13 @@
   "scripts": {
     "dev": "npm run dev:web",
     "dev:web": "npm --prefix apps/web run dev",
+    "build": "npm run build:web",
     "build:web": "npm --prefix apps/web run build",
+    "lint": "npm run lint:web",
     "lint:web": "npm --prefix apps/web run lint",
+    "typecheck": "npm run typecheck:web",
     "typecheck:web": "npm --prefix apps/web run typecheck",
+    "test": "npm run test:web",
     "test:web": "npm --prefix apps/web run test",
     "build:types": "npm --prefix packages/shared-types run build"
   },

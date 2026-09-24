@@ -34,8 +34,22 @@ logs:
 	docker compose logs -f
 
 test:
-	@echo "Running tests..."
+	@echo "Running backend & frontend tests..."
+	@for f in apps/api/tests/Feature/*.php; do echo "Running $$f..."; php "$$f" || exit 1; done
 	@npm run test:web --if-present
+
+smoke:
+	@bash infrastructure/scripts/smoke-test.sh
+
+build:
+	@echo "Building shared types and Next.js standalone production bundle..."
+	@npm run build:types
+	@npm run build:web
+
+deploy-check: typecheck test build smoke
+	@echo "=============================================================================="
+	@echo " ALL PRE-DEPLOYMENT CHECKS PASSED: READY FOR PRODUCTION GO-LIVE ✓"
+	@echo "=============================================================================="
 
 lint:
 	@echo "Running linters..."
@@ -43,7 +57,9 @@ lint:
 
 typecheck:
 	@echo "Running typecheck..."
-	@npm run typecheck:web --if-present
+	@npm run build:types
+	@npm run typecheck:web
 
 clean:
 	rm -rf node_modules apps/web/.next apps/web/node_modules packages/*/dist
+

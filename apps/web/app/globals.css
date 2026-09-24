@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @theme {
   --color-canvas-obsidian: #090A0D;
@@ -43,3 +44,47 @@ body {
 .btn-tactile:active {
   transform: scale(0.98) translateY(1px);
 }
+
+/* Leaflet Dark Theme Overrides */
+.leaflet-container {
+  background-color: #090A0D !important;
+  font-family: var(--font-sans) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #111318 !important;
+  color: #F8FAFC !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-popup-tip {
+  background: #111318 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.leaflet-bar {
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-bar a {
+  background-color: #111318 !important;
+  color: #F8FAFC !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #181B22 !important;
+  color: #10B981 !important;
+}
+

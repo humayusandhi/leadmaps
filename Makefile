@@ -51,6 +51,9 @@ deploy-check: typecheck test build smoke
 	@echo " ALL PRE-DEPLOYMENT CHECKS PASSED: READY FOR PRODUCTION GO-LIVE ✓"
 	@echo "=============================================================================="
 
+deploy:
+	@bash deploy.sh
+
 lint:
 	@echo "Running linters..."
 	@npm run lint:web --if-present

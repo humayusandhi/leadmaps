@@ -19,7 +19,8 @@
     "typecheck:web": "npm --prefix apps/web run typecheck",
     "test": "npm run test:web",
     "test:web": "npm --prefix apps/web run test",
-    "build:types": "npm --prefix packages/shared-types run build"
+    "build:types": "npm --prefix packages/shared-types run build",
+    "deploy": "bash deploy.sh"
   },
   "engines": {
     "node": ">=20.0.0",

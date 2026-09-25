@@ -5,6 +5,8 @@
 .env.production
 .env.staging
 .env.testing
+.env.deploy
+*.tar.gz
 
 # Node / Next.js
 node_modules/

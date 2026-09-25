@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "npm run dev:web",
     "dev:web": "npm --prefix apps/web run dev",
-    "build": "npm run build:types && npm run build:web && rm -rf .next && cp -r apps/web/.next ./.next && rm -rf public && cp -r apps/web/public ./public",
+    "build": "npm run build:types && npm run build:web && rm -rf .next && cp -r apps/web/.next ./.next && rm -rf public && cp -r apps/web/public ./public && mkdir -p .next/standalone/apps/web/.next && cp -r apps/web/public .next/standalone/apps/web/public && cp -r apps/web/.next/static .next/standalone/apps/web/.next/static",
     "build:web": "npm --prefix apps/web run build",
     "start": "node server.js",
     "lint": "npm run lint:web",

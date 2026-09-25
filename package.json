@@ -22,6 +22,11 @@
     "build:types": "npm --prefix packages/shared-types run build",
     "deploy": "bash deploy.sh"
   },
+  "dependencies": {
+    "next": "^16.3.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"

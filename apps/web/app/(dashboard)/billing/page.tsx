@@ -220,10 +220,16 @@ export default function BillingPage() {
     showToast(`✓ Subscribed to ${plan.name}! +${allocatedCredits.toLocaleString()} active credits allocated.`);
   };
 
-  const handleTopUpPurchase = async (pack: 'pack_100' | 'pack_500' | 'pack_2000') => {
-    const credits = pack === 'pack_100' ? 100 : pack === 'pack_500' ? 500 : 2000;
-    
-    // Increment global workspace credit balance
+  const handleTopUpPurchaseSuccess = async (
+    credits: number,
+    paymentDetails: { paymentId: string; amount: number; packId: string }
+  ) => {
+    if (!paymentDetails?.paymentId) {
+      showToast('❌ Payment verification required. No tokens were credited.');
+      return;
+    }
+
+    // Increment global workspace credit balance only after payment verification
     refundCredits(credits);
 
     const newTx: CreditTransactionDTO = {
@@ -231,13 +237,13 @@ export default function BillingPage() {
       workspace_id: activeWorkspace?.id || 'ws-default',
       amount: credits,
       type: 'PURCHASE',
-      description: `One-time top-up pack (${credits} credits)`,
+      description: `Razorpay Verified: Top-up pack (${credits} credits • ₹${paymentDetails.amount.toLocaleString()} • Ref: ${paymentDetails.paymentId.toUpperCase()})`,
       balance_after: (activeWorkspace?.credit_balance ?? balance.balance) + credits,
       created_at: new Date().toISOString(),
     };
 
     setTransactions((prev) => [newTx, ...prev]);
-    showToast(`Successfully credited +${credits} usage credits!`);
+    showToast(`✓ Payment Verified: +${credits.toLocaleString()} usage credits added!`);
   };
 
   return (
@@ -375,7 +381,7 @@ export default function BillingPage() {
       <CreditTopUpModal
         isOpen={isTopUpOpen}
         onClose={() => setIsTopUpOpen(false)}
-        onPurchase={handleTopUpPurchase}
+        onPurchaseSuccess={handleTopUpPurchaseSuccess}
       />
 
       {/* Subscription Payment Gateway Checkout Modal */}

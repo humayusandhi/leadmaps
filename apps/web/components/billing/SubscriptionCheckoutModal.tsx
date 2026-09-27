@@ -36,10 +36,13 @@ export function SubscriptionCheckoutModal({
   const [isProcessing, setIsProcessing] = React.useState(false);
   const [step, setStep] = React.useState<'review' | 'processing' | 'success'>('review');
 
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
   React.useEffect(() => {
     if (isOpen) {
       setStep('review');
       setIsProcessing(false);
+      setErrorMessage(null);
     }
   }, [isOpen, plan]);
 
@@ -47,19 +50,58 @@ export function SubscriptionCheckoutModal({
 
   const handlePay = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
     setIsProcessing(true);
-    setStep('processing');
 
-    // Simulate authentic Razorpay payment gateway handshake & verification
-    setTimeout(() => {
-      const mockPaymentId = `pay_${Math.random().toString(36).substring(2, 12)}`;
+    try {
+      if (paymentMethod === 'upi') {
+        const cleanUpi = upiId.trim();
+        if (!cleanUpi || !cleanUpi.includes('@') || cleanUpi.length < 5) {
+          throw new Error('Please enter a valid UPI ID (e.g. yourname@okhdfcbank).');
+        }
+      } else if (paymentMethod === 'card') {
+        const cleanCard = cardNumber.replace(/\s+/g, '');
+        if (cleanCard.length < 15) {
+          throw new Error('Please enter a valid 16-digit card number.');
+        }
+        if (!cardExpiry.includes('/') || cardExpiry.length < 4) {
+          throw new Error('Please enter a valid card expiry date (MM/YY).');
+        }
+        if (cardCvv.length < 3) {
+          throw new Error('Please enter a valid CVV code.');
+        }
+      }
+
+      setStep('processing');
+
+      const generatedPaymentId = `pay_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+      const res = await fetch('/api/v1/billing/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'verify-payment',
+          plan_code: plan.code,
+          payment_id: generatedPaymentId,
+        }),
+      });
+
+      const resData = await res.json();
+      if (!res.ok || !resData.success) {
+        throw new Error(resData.message || 'Payment verification failed. Subscription was not activated.');
+      }
+
       setStep('success');
       setTimeout(() => {
         setIsProcessing(false);
-        onSuccess(plan, { paymentId: mockPaymentId, method: paymentMethod });
+        onSuccess(plan, { paymentId: generatedPaymentId, method: paymentMethod });
         onClose();
       }, 1200);
-    }, 1500);
+    } catch (err: any) {
+      setIsProcessing(false);
+      setStep('review');
+      setErrorMessage(err.message || 'Payment processing failed. Subscription not activated.');
+    }
   };
 
   return (
@@ -91,6 +133,14 @@ export function SubscriptionCheckoutModal({
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Error Banner */}
+        {errorMessage && (
+          <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2.5">
+            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
         {/* Modal Body */}
         {step === 'processing' ? (

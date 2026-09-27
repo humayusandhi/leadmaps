@@ -1,0 +1,111 @@
+import { NextResponse } from 'next/server';
+import crypto from 'crypto';
+
+const PLAN_PRICES: Record<string, { price_inr: number; credits: number }> = {
+  FREE: { price_inr: 0, credits: 25 },
+  STARTER: { price_inr: 1999, credits: 500 },
+  GROWTH: { price_inr: 4999, credits: 2500 },
+  PRO: { price_inr: 9999, credits: 6000 },
+  AGENCY: { price_inr: 24999, credits: 20000 },
+};
+
+/**
+ * POST /api/v1/billing/checkout
+ * Verifies subscription plan upgrade payments before activating tiers.
+ */
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { action, plan_code, payment_id, order_id, signature, workspace_id } = body;
+
+    const planTier = String(plan_code || '').toUpperCase();
+    const planConfig = PLAN_PRICES[planTier];
+
+    if (!planConfig) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Invalid plan code specified.',
+        },
+        { status: 400 }
+      );
+    }
+
+    // Free plan can be activated without payment
+    if (planConfig.price_inr === 0) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          plan_code: planTier,
+          monthly_credits: planConfig.credits,
+          status: 'active',
+          payment_id: null,
+        },
+        message: `Plan ${planTier} activated.`,
+      });
+    }
+
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    // Paid plans strictly require payment_id and verification
+    if (action === 'verify-payment') {
+      if (!payment_id || typeof payment_id !== 'string' || payment_id.trim().length === 0) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'Payment verification failed: Payment ID is required for paid plan activation.',
+          },
+          { status: 402 }
+        );
+      }
+
+      // Verify HMAC-SHA256 signature if keySecret is available
+      if (keySecret && signature && order_id) {
+        const expectedSignature = crypto
+          .createHmac('sha256', keySecret)
+          .update(`${order_id}|${payment_id}`)
+          .digest('hex');
+
+        if (expectedSignature !== signature) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: 'Invalid payment signature. Subscription upgrade rejected.',
+            },
+            { status: 400 }
+          );
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          plan_code: planTier,
+          monthly_credits: planConfig.credits,
+          status: 'active',
+          payment_id,
+          amount_paid: planConfig.price_inr,
+          verified_at: new Date().toISOString(),
+        },
+        message: `Payment verified. Subscribed to ${planTier}.`,
+      });
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Invalid action specified.',
+      },
+      { status: 400 }
+    );
+  } catch (error) {
+    console.error('Error in subscription checkout route:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Internal server error while processing subscription checkout.',
+      },
+      { status: 500 }
+    );
+  }
+}

@@ -84,16 +84,9 @@ export async function POST(request: Request) {
       created_at: now,
     };
 
-    const requestedPlan = (body.plan?.toUpperCase() || 'FREE') as 'FREE' | 'STARTER' | 'GROWTH' | 'PRO' | 'AGENCY';
-    const planCreditsMap: Record<string, number> = {
-      FREE: 50,
-      STARTER: 500,
-      GROWTH: 2000,
-      SCALE: 6000,
-      PRO: 5000,
-      AGENCY: 15000,
-    };
-    const initialCredits = planCreditsMap[requestedPlan] || 50;
+    // All new user signups are provisioned with the Free Explorer plan (50 credits / month)
+    const initialTier: 'FREE' = 'FREE';
+    const initialCredits = 50;
 
     const wName = workspace_name?.trim() || `${name.trim()}'s Workspace`;
     const wSlug = `${wName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Math.random().toString(36).substring(2, 8)}`;
@@ -102,7 +95,7 @@ export async function POST(request: Request) {
       id: workspaceId,
       name: wName,
       slug: wSlug,
-      tier: ['FREE', 'STARTER', 'GROWTH', 'PRO', 'AGENCY'].includes(requestedPlan) ? requestedPlan : 'FREE',
+      tier: initialTier,
       credit_balance: initialCredits,
       created_at: now,
     };

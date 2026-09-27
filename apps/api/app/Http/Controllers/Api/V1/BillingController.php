@@ -41,7 +41,7 @@ class BillingController extends Controller
             'subscription' => $subscription,
             'current_plan' => $subscription?->plan ?? [
                 'code' => 'FREE',
-                'name' => 'Free Trial',
+                'name' => 'Free Explorer',
                 'price_inr' => 0,
                 'monthly_credits' => 50,
             ],
@@ -61,10 +61,10 @@ class BillingController extends Controller
                 [
                     'id' => 'plan-free',
                     'code' => 'FREE',
-                    'name' => 'Free Community',
+                    'name' => 'Free Explorer',
                     'price_inr' => 0,
                     'monthly_credits' => 50,
-                    'features' => ['50 search credits/mo', 'Basic website audit', 'Single user seat', 'Standard export'],
+                    'features' => ['50 credits / month', 'Google Places discovery', 'Basic website status check', 'Standard CSV export'],
                 ],
                 [
                     'id' => 'plan-starter',

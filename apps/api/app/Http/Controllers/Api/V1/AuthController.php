@@ -43,7 +43,7 @@ class AuthController extends Controller
                 'name' => $workspaceName,
                 'slug' => $workspaceSlug,
                 'tier' => 'FREE',
-                'credit_balance' => 25, // Initial welcome bonus credits
+                'credit_balance' => 50, // Free Explorer welcome credits (50 credits / month)
             ]);
 
             // 3. Assign User as OWNER

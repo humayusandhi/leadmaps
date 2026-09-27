@@ -129,7 +129,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: `${derivedName}'s Agency`,
         slug: `${derivedName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-agency`,
         tier: 'FREE',
-        credit_balance: 25,
+        credit_balance: 50,
         created_at: new Date().toISOString(),
       };
       const fallbackToken = `1|leadmap_token_${Date.now()}`;
@@ -152,8 +152,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     workspaceName?: string,
     plan?: string
   ) => {
-    const requestedTier = (plan?.toUpperCase() || 'FREE') as SubscriptionTier;
-    const initialCredits = PLAN_CREDIT_QUOTAS[requestedTier] || 50;
+    const requestedTier: SubscriptionTier = 'FREE';
+    const initialCredits = 50;
 
     try {
       const res = await api.post<{

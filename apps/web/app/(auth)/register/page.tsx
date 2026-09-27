@@ -140,18 +140,42 @@ function RegisterForm() {
             helperText="You can invite team members and add more workspaces later"
           />
 
-          {/* Selected Plan & Credit Quota Badge */}
-          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between text-xs font-mono">
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-emerald-400 shrink-0" />
-              <div>
-                <span className="text-slate-400 block text-[10px] uppercase tracking-wider">Selected Plan</span>
-                <span className="font-bold text-white font-sans">{selectedPlanInfo.name}</span>
+          {/* Selected Plan & Free Explorer Features Banner */}
+          <div className="p-4 rounded-xl bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-emerald-500/30 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-emerald-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-white font-sans text-sm">Free Explorer</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                      $0 / mo
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-400 font-sans block">Test discovery in your home city.</span>
+                </div>
+              </div>
+              <div className="text-right font-mono">
+                <span className="text-xs text-emerald-400 font-bold block">50 credits / month</span>
+                <span className="text-[10px] text-slate-500">Free forever</span>
               </div>
             </div>
-            <div className="text-right">
-              <span className="text-slate-400 block text-[10px] uppercase tracking-wider">Active Credits</span>
-              <span className="font-bold text-emerald-400">+{selectedPlanInfo.credits.toLocaleString()} cr</span>
+
+            <div className="pt-2 border-t border-white/[0.06] grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-[11px] font-mono text-slate-300">
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                <span>Google Places discovery</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                <span>Basic website status check</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                <span>Standard CSV export</span>
+              </div>
             </div>
           </div>
 
@@ -166,9 +190,7 @@ function RegisterForm() {
             >
               {isSubmitting
                 ? 'Provisioning Workspace...'
-                : planParam === 'free'
-                ? 'Launch Free Account (50 Credits)'
-                : `Activate ${selectedPlanInfo.name} (${selectedPlanInfo.credits.toLocaleString()} Credits)`}
+                : 'Launch Free Explorer (50 Credits)'}
             </Button>
           </div>
         </form>

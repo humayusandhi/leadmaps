@@ -84,7 +84,7 @@ export async function POST(request: Request) {
         name: `${user.name}'s Workspace`,
         slug: `${user.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-agency`,
         tier: 'FREE',
-        credit_balance: 25,
+        credit_balance: 50,
         created_at: new Date().toISOString(),
       };
       globalRegistry.__leadmap_workspaces!.set(workspaceId, workspace);
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
           name: `${user.name}'s Workspace`,
           slug: `${user.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-agency`,
           tier: 'FREE',
-          credit_balance: 25,
+          credit_balance: 50,
           created_at: new Date().toISOString(),
         };
         globalRegistry.__leadmap_workspaces!.set(workspaceId, workspace);

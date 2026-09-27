@@ -34,7 +34,7 @@ export default function PricingPage() {
     {
       id: 'free',
       name: 'Free Explorer',
-      description: 'Ideal for trying out local business discovery in your city.',
+      description: 'Test discovery in your home city.',
       priceUSD: 0,
       priceINR: 0,
       credits: 50,
@@ -42,11 +42,10 @@ export default function PricingPage() {
       isPopular: false,
       cta: 'Start Free Trial',
       features: [
-        '50 search credits / month',
-        'Google Places API (New) discovery',
-        'Basic website status (200 OK / SSL)',
+        '50 credits / month',
+        'Google Places discovery',
+        'Basic website status check',
         'Standard CSV export',
-        'Single workspace',
       ],
     },
     {

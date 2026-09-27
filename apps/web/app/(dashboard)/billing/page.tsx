@@ -28,13 +28,13 @@ const DEFAULT_PLANS: PlanDTO[] = [
   {
     id: 'plan-free',
     code: 'FREE',
-    name: 'Free Trial',
+    name: 'Free Explorer',
     price_inr: 0,
     monthly_credits: 50,
     features: [
-      '50 search credits / month',
-      'Basic website audit signals',
-      '1 team seat',
+      '50 credits / month',
+      'Google Places discovery',
+      'Basic website status check',
       'Standard CSV export',
     ],
   },
@@ -139,7 +139,7 @@ const INITIAL_TRANSACTIONS: CreditTransactionDTO[] = [
 
 export default function BillingPage() {
   const { activeWorkspace, refundCredits, updateWorkspacePlan } = useAuth();
-  const currentCreditBalance = activeWorkspace?.credit_balance ?? 25;
+  const currentCreditBalance = activeWorkspace?.credit_balance ?? 50;
 
   const [balance, setBalance] = React.useState<CreditBalanceDTO>({
     balance: currentCreditBalance,
@@ -150,7 +150,7 @@ export default function BillingPage() {
   });
 
   const [currentPlanCode, setCurrentPlanCode] = React.useState<SubscriptionTier>(
-    activeWorkspace?.tier || 'GROWTH'
+    activeWorkspace?.tier || 'FREE'
   );
 
   // Sync real-time workspace credits and tier from AuthContext
@@ -177,7 +177,7 @@ export default function BillingPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const currentPlan = DEFAULT_PLANS.find((p) => p.code === currentPlanCode) || DEFAULT_PLANS[2];
+  const currentPlan = DEFAULT_PLANS.find((p) => p.code === currentPlanCode) || DEFAULT_PLANS[0];
 
   const handleSelectPlan = (plan: PlanDTO) => {
     if (plan.code === currentPlanCode) return;

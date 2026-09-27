@@ -63,7 +63,7 @@ export async function GET(request: Request) {
       name: 'Primary Agency',
       slug: 'primary-agency',
       tier: 'FREE',
-      credit_balance: 25,
+      credit_balance: 50,
       created_at: new Date().toISOString(),
     };
   }

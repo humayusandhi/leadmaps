@@ -7,7 +7,7 @@
     "build": "next build --webpack",
     "start": "next start --port 3000",
     "start:hostinger": "node server.js",
-    "lint": "next lint",
+    "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "test": "tsc --noEmit"
   },

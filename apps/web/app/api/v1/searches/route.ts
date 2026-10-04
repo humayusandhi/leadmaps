@@ -37,6 +37,7 @@ export async function POST(request: Request) {
             'X-Goog-Api-Key': apiKey.trim(),
             'X-Goog-FieldMask':
               'places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.userRatingCount,places.websiteUri,places.nationalPhoneNumber,places.types,places.businessStatus',
+            'Referer': process.env.NEXT_PUBLIC_APP_URL || 'https://leadmaps.in/',
           },
           body: JSON.stringify({
             textQuery: query,
@@ -63,6 +64,9 @@ export async function POST(request: Request) {
             longitude: p.location?.longitude ?? (-104.9903 + idx * 0.005),
             is_saved: false,
           }));
+        } else {
+          const errDetails = await googleRes.json().catch(() => ({}));
+          console.error('Google Places API request failed with status', googleRes.status, errDetails);
         }
       } catch (err) {
         console.warn('Google Places API call encountered an error, falling back to simulated results:', err);

@@ -66,11 +66,19 @@ export function MapCanvas({
         }
       ).addTo(map);
     } else {
-      // Dark-Matter CartoDB Tiles matching Void Obsidian (#090A0D)
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-        subdomains: 'abcd',
-      }).addTo(map);
+      // Pure Dark Canvas Basemap via Esri World Dark Gray (Zero API keys required, zero watermarks)
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom: 16,
+        }
+      ).addTo(map);
+      L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+        {
+          maxZoom: 16,
+        }
+      ).addTo(map);
     }
 
     // Zoom Controls in bottom right
@@ -80,7 +88,11 @@ export function MapCanvas({
     L.control.attribution({
       position: 'bottomleft',
       prefix: `<span class="text-[10px] text-zinc-600 font-mono">${
-        mapboxToken ? 'Mapbox &bull; OpenStreetMap' : 'CARTO &bull; OpenStreetMap'
+        mapboxToken
+          ? 'Mapbox &bull; OpenStreetMap'
+          : cartoApiKey
+          ? 'CARTO &bull; OpenStreetMap'
+          : 'Esri &bull; OpenStreetMap'
       }</span>`,
     }).addTo(map);
 

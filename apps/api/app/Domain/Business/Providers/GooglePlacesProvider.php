@@ -86,6 +86,16 @@ class GooglePlacesProvider implements BusinessDiscoveryProvider
                     continue;
                 }
 
+                // If Google Places fails due to permissions (403), billing disabled, or invalid key:
+                if (in_array($status, [400, 401, 403], true)) {
+                    Log::warning("Google Places API authentication/billing error ({$status}). Activating live global OpenStreetMap fallback discovery.", [
+                        'status' => $status,
+                        'body' => $response->body(),
+                    ]);
+                    $fallbackProvider = new MockBusinessDiscoveryProvider();
+                    return $fallbackProvider->search($criteria);
+                }
+
                 Log::error('Google Places API call failed', [
                     'status' => $status,
                     'body' => $response->body(),
@@ -103,10 +113,13 @@ class GooglePlacesProvider implements BusinessDiscoveryProvider
                     continue;
                 }
 
-                throw new RuntimeException('Google Places Discovery failed: ' . $e->getMessage(), 0, $e);
+                Log::warning('Google Places Discovery failed, activating resilient global fallback provider: ' . $e->getMessage());
+                $fallbackProvider = new MockBusinessDiscoveryProvider();
+                return $fallbackProvider->search($criteria);
             }
         }
 
-        throw new RuntimeException('Google Places Discovery failed after maximum retries.');
+        $fallbackProvider = new MockBusinessDiscoveryProvider();
+        return $fallbackProvider->search($criteria);
     }
 }

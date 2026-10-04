@@ -8,6 +8,7 @@ interface PlanCardProps {
   plan: PlanDTO;
   isCurrentPlan: boolean;
   isRecommended?: boolean;
+  billingCycle?: 'monthly' | 'annual';
   onSelectPlan: (plan: PlanDTO) => void;
   isLoading?: boolean;
 }
@@ -16,9 +17,14 @@ export function PlanCard({
   plan,
   isCurrentPlan,
   isRecommended,
+  billingCycle = 'monthly',
   onSelectPlan,
   isLoading,
 }: PlanCardProps) {
+  const isAnnual = billingCycle === 'annual';
+  const effectiveMonthly = isAnnual && plan.price_inr > 0 ? Math.round(plan.price_inr * 0.8) : plan.price_inr;
+  const annualTotal = isAnnual && plan.price_inr > 0 ? effectiveMonthly * 12 : 0;
+
   return (
     <div
       className={`relative rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between ${
@@ -37,16 +43,39 @@ export function PlanCard({
       <div>
         {/* Plan Header */}
         <div className="space-y-1.5 mb-5">
-          <h3 className="text-lg font-bold text-white tracking-tight">{plan.name}</h3>
-          <div className="flex items-baseline gap-1.5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold text-white tracking-tight">{plan.name}</h3>
+            {isAnnual && plan.price_inr > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold">
+                20% OFF
+              </span>
+            )}
+          </div>
+          <div className="flex items-baseline gap-1.5 pt-1">
             <span className="text-3xl font-extrabold text-white font-mono">
-              ₹{plan.price_inr.toLocaleString()}
+              ₹{effectiveMonthly.toLocaleString()}
             </span>
             <span className="text-xs text-slate-400 font-mono">/ month</span>
+            {isAnnual && plan.price_inr > 0 && (
+              <span className="text-xs text-slate-500 line-through font-mono ml-1">
+                ₹{plan.price_inr.toLocaleString()}
+              </span>
+            )}
           </div>
-          <p className="text-xs font-mono text-emerald-400 font-semibold">
-            {plan.monthly_credits.toLocaleString()} credits included
-          </p>
+          {isAnnual && plan.price_inr > 0 ? (
+            <p className="text-[11px] font-mono text-emerald-400/90 font-medium">
+              Billed ₹{annualTotal.toLocaleString()}/yr (Save 20%)
+            </p>
+          ) : (
+            <p className="text-xs font-mono text-emerald-400 font-semibold">
+              {plan.monthly_credits.toLocaleString()} credits included
+            </p>
+          )}
+          {isAnnual && plan.price_inr > 0 && (
+            <p className="text-xs font-mono text-slate-400">
+              {plan.monthly_credits.toLocaleString()} credits / month
+            </p>
+          )}
         </div>
 
         {/* Feature List */}
@@ -84,7 +113,7 @@ export function PlanCard({
           </>
         ) : (
           <>
-            <span>Subscribe &bull; ₹{plan.price_inr.toLocaleString()}/mo</span>
+            <span>Subscribe &bull; ₹{effectiveMonthly.toLocaleString()}/mo</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </>
         )}

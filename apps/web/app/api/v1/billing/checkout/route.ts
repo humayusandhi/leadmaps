@@ -47,6 +47,11 @@ export async function POST(request: Request) {
 
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
+    const isAnnual = body.billing_cycle === 'annual';
+    const amountPaid = isAnnual && planConfig.price_inr > 0
+      ? Math.round(planConfig.price_inr * 12 * 0.8)
+      : planConfig.price_inr;
+
     // Paid plans strictly require payment_id and verification
     if (action === 'verify-payment') {
       if (!payment_id || typeof payment_id !== 'string' || payment_id.trim().length === 0) {
@@ -84,10 +89,11 @@ export async function POST(request: Request) {
           monthly_credits: planConfig.credits,
           status: 'active',
           payment_id,
-          amount_paid: planConfig.price_inr,
+          billing_cycle: isAnnual ? 'annual' : 'monthly',
+          amount_paid: amountPaid,
           verified_at: new Date().toISOString(),
         },
-        message: `Payment verified. Subscribed to ${planTier}.`,
+        message: `Payment verified. Subscribed to ${planTier} (${isAnnual ? 'Yearly - 20% OFF' : 'Monthly'}).`,
       });
     }
 

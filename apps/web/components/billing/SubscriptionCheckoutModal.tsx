@@ -18,6 +18,7 @@ import type { PlanDTO } from '@leadmap/shared-types';
 interface SubscriptionCheckoutModalProps {
   isOpen: boolean;
   plan: PlanDTO | null;
+  billingCycle?: 'monthly' | 'annual';
   onClose: () => void;
   onSuccess: (plan: PlanDTO, paymentDetails: { paymentId: string; method: string }) => void;
 }
@@ -25,9 +26,14 @@ interface SubscriptionCheckoutModalProps {
 export function SubscriptionCheckoutModal({
   isOpen,
   plan,
+  billingCycle = 'monthly',
   onClose,
   onSuccess,
 }: SubscriptionCheckoutModalProps) {
+  const isAnnual = billingCycle === 'annual';
+  const effectiveMonthly = isAnnual && plan && plan.price_inr > 0 ? Math.round(plan.price_inr * 0.8) : (plan?.price_inr || 0);
+  const totalAmountToBill = isAnnual && plan && plan.price_inr > 0 ? effectiveMonthly * 12 : (plan?.price_inr || 0);
+
   const [paymentMethod, setPaymentMethod] = React.useState<'upi' | 'card' | 'netbanking'>('upi');
   const [upiId, setUpiId] = React.useState('user@okhdfcbank');
   const [cardNumber, setCardNumber] = React.useState('4111 •••• •••• 4242');
@@ -82,6 +88,7 @@ export function SubscriptionCheckoutModal({
         body: JSON.stringify({
           action: 'verify-payment',
           plan_code: plan.code,
+          billing_cycle: billingCycle,
           payment_id: generatedPaymentId,
         }),
       });
@@ -179,6 +186,12 @@ export function SubscriptionCheckoutModal({
                 <span className="font-bold text-white font-sans">{plan.name}</span>
               </div>
               <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-slate-400">Billing Cycle:</span>
+                <span className="font-bold text-emerald-400 font-mono">
+                  {isAnnual ? 'Yearly Billing (20% OFF Applied)' : 'Monthly Billing'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs font-mono">
                 <span className="text-slate-400">Monthly Usage Credits:</span>
                 <span className="font-bold text-emerald-400">+{plan.monthly_credits.toLocaleString()} cr / mo</span>
               </div>
@@ -186,8 +199,13 @@ export function SubscriptionCheckoutModal({
                 <span className="text-xs font-mono text-slate-300">Total Billed Today:</span>
                 <div className="text-right">
                   <span className="text-2xl font-extrabold text-white font-mono">
-                    ₹{plan.price_inr.toLocaleString()}
+                    ₹{totalAmountToBill.toLocaleString()}
                   </span>
+                  {isAnnual && plan.price_inr > 0 && (
+                    <span className="text-[11px] text-emerald-400 font-mono block">
+                      Effective ₹{effectiveMonthly.toLocaleString()} / mo &bull; Saves ₹{(plan.price_inr * 12 - totalAmountToBill).toLocaleString()}
+                    </span>
+                  )}
                   <span className="text-[10px] text-slate-400 font-mono block">Includes all applicable GST</span>
                 </div>
               </div>

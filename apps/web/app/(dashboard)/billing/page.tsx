@@ -168,6 +168,7 @@ export default function BillingPage() {
   }, [activeWorkspace?.credit_balance, activeWorkspace?.tier]);
 
   const [transactions, setTransactions] = React.useState<CreditTransactionDTO[]>(INITIAL_TRANSACTIONS);
+  const [billingCycle, setBillingCycle] = React.useState<'monthly' | 'annual'>('annual');
   const [isTopUpOpen, setIsTopUpOpen] = React.useState(false);
   const [checkoutPlan, setCheckoutPlan] = React.useState<PlanDTO | null>(null);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
@@ -285,11 +286,40 @@ export default function BillingPage() {
 
       {/* Plans Matrix */}
       <div className="space-y-4">
-        <div>
-          <h2 className="text-lg font-bold text-white tracking-tight">Subscription Plans</h2>
-          <p className="text-xs text-slate-400">
-            Scale your prospecting volume with automated monthly quota renewals
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-white tracking-tight">Subscription Plans</h2>
+            <p className="text-xs text-slate-400">
+              Scale your prospecting volume with automated monthly quota renewals
+            </p>
+          </div>
+
+          {/* Billing Cycle Toggle */}
+          <div className="flex items-center p-1 rounded-full bg-[#111318] border border-white/[0.08] self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setBillingCycle('monthly')}
+              className={`px-3.5 py-1 rounded-full text-xs font-mono font-medium transition-all ${
+                billingCycle === 'monthly'
+                  ? 'bg-white/[0.1] text-white shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingCycle('annual')}
+              className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-mono font-medium transition-all ${
+                billingCycle === 'annual'
+                  ? 'bg-emerald-500 text-slate-950 font-bold shadow'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>Yearly</span>
+              <span className="px-1.5 py-0.2 rounded bg-black/30 text-[10px]">20% OFF</span>
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
@@ -297,6 +327,7 @@ export default function BillingPage() {
             <PlanCard
               key={plan.id}
               plan={plan}
+              billingCycle={billingCycle}
               isCurrentPlan={plan.code === currentPlanCode}
               isRecommended={plan.code === 'GROWTH'}
               onSelectPlan={handleSelectPlan}
@@ -388,6 +419,7 @@ export default function BillingPage() {
       <SubscriptionCheckoutModal
         isOpen={Boolean(checkoutPlan)}
         plan={checkoutPlan}
+        billingCycle={billingCycle}
         onClose={() => setCheckoutPlan(null)}
         onSuccess={(plan, details) => applyPlanActivation(plan, details)}
       />

@@ -240,7 +240,17 @@ export default function PricingPage() {
                     <div className="pt-2 flex items-baseline gap-1.5">
                       <span className="text-3xl font-extrabold text-white font-mono">{price}</span>
                       <span className="text-xs text-slate-400 font-mono">/ month</span>
+                      {isAnnual && plan.priceINR > 0 && (
+                        <span className="text-xs text-slate-500 line-through font-mono ml-1">
+                          {currency === 'USD' ? `$${Math.round(plan.priceUSD / 0.8)}` : `₹${Math.round(plan.priceINR / 0.8).toLocaleString()}`}
+                        </span>
+                      )}
                     </div>
+                    {isAnnual && plan.priceINR > 0 && (
+                      <p className="text-[11px] font-mono text-emerald-400">
+                        Billed {currency === 'USD' ? `$${(plan.priceUSD * 12).toLocaleString()}` : `₹${(plan.priceINR * 12).toLocaleString()}`}/yr (Save 20%)
+                      </p>
+                    )}
                     <div className="flex items-center gap-2 pt-1 font-mono text-xs">
                       <span className="text-emerald-400 font-semibold">{plan.credits.toLocaleString()} credits</span>
                       <span className="text-slate-600">&bull;</span>

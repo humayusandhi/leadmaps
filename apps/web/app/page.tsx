@@ -469,10 +469,19 @@ export default function HomePage() {
                       ₹{Math.round(500 * discountMultiplier)}
                     </span>
                     <span className="text-xs font-mono text-slate-400">/ mo</span>
+                    {isAnnual && (
+                      <span className="text-xs text-slate-500 line-through font-mono ml-1">₹500</span>
+                    )}
                   </div>
-                  <span className="text-xs font-mono text-emerald-400 font-semibold block mt-1">
-                    500 credits (₹1/token) &bull; 3 seats
-                  </span>
+                  {isAnnual ? (
+                    <span className="text-[11px] font-mono text-emerald-400 block mt-1">
+                      Billed ₹4,800/yr (Save 20%) &bull; 500 cr/mo
+                    </span>
+                  ) : (
+                    <span className="text-xs font-mono text-emerald-400 font-semibold block mt-1">
+                      500 credits (₹1/token) &bull; 3 seats
+                    </span>
+                  )}
                 </div>
                 <div className="space-y-2 pt-4 border-t border-white/[0.06] text-xs text-slate-300">
                   <div className="flex items-center gap-2">
@@ -510,10 +519,19 @@ export default function HomePage() {
                       ₹{Math.round(2000 * discountMultiplier)}
                     </span>
                     <span className="text-xs font-mono text-slate-400">/ mo</span>
+                    {isAnnual && (
+                      <span className="text-xs text-slate-500 line-through font-mono ml-1">₹2,000</span>
+                    )}
                   </div>
-                  <span className="text-xs font-mono text-emerald-400 font-semibold block mt-1">
-                    2,000 credits (₹1/token) &bull; 10 seats
-                  </span>
+                  {isAnnual ? (
+                    <span className="text-[11px] font-mono text-emerald-400 block mt-1">
+                      Billed ₹19,200/yr (Save 20%) &bull; 2,000 cr/mo
+                    </span>
+                  ) : (
+                    <span className="text-xs font-mono text-emerald-400 font-semibold block mt-1">
+                      2,000 credits (₹1/token) &bull; 10 seats
+                    </span>
+                  )}
                 </div>
                 <div className="space-y-2 pt-4 border-t border-white/[0.06] text-xs text-slate-300">
                   <div className="flex items-center gap-2">
@@ -552,10 +570,19 @@ export default function HomePage() {
                       ₹{Math.round(6000 * discountMultiplier)}
                     </span>
                     <span className="text-xs font-mono text-slate-400">/ mo</span>
+                    {isAnnual && (
+                      <span className="text-xs text-slate-500 line-through font-mono ml-1">₹6,000</span>
+                    )}
                   </div>
-                  <span className="text-xs font-mono text-emerald-400 font-semibold block mt-1">
-                    6,000 credits (₹1/token) &bull; Unlimited
-                  </span>
+                  {isAnnual ? (
+                    <span className="text-[11px] font-mono text-emerald-400 block mt-1">
+                      Billed ₹57,600/yr (Save 20%) &bull; 6,000 cr/mo
+                    </span>
+                  ) : (
+                    <span className="text-xs font-mono text-emerald-400 font-semibold block mt-1">
+                      6,000 credits (₹1/token) &bull; Unlimited
+                    </span>
+                  )}
                 </div>
                 <div className="space-y-2 pt-4 border-t border-white/[0.06] text-xs text-slate-300">
                   <div className="flex items-center gap-2">

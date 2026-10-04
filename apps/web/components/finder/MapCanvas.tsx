@@ -43,27 +43,26 @@ export function MapCanvas({
       attributionControl: false,
     });
 
-    const cartoApiKey = process.env.NEXT_PUBLIC_CARTO_API_KEY || 'cb1_40dk_1_67c03a84bece7daa0ebbb2c8';
     const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+    const cartoApiKey = process.env.NEXT_PUBLIC_CARTO_API_KEY;
 
-    const cartoTileUrl = cartoApiKey
-      ? `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${cartoApiKey}`
-      : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-
-    if (cartoApiKey) {
-      // High-resolution Authenticated CARTO Dark Matter Basemap
-      L.tileLayer(cartoTileUrl, {
-        maxZoom: 20,
-        subdomains: 'abcd',
-      }).addTo(map);
-    } else if (mapboxToken) {
-      // High-resolution Mapbox Dark v11 tiles matching Void Obsidian palette
+    if (mapboxToken) {
+      // High-resolution Mapbox Dark v11 tiles matching Void Obsidian palette (No Watermarks)
       L.tileLayer(
         `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`,
         {
           maxZoom: 20,
           tileSize: 512,
           zoomOffset: -1,
+        }
+      ).addTo(map);
+    } else if (cartoApiKey) {
+      // High-resolution Authenticated CARTO Dark Matter Basemap
+      L.tileLayer(
+        `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${cartoApiKey}`,
+        {
+          maxZoom: 20,
+          subdomains: 'abcd',
         }
       ).addTo(map);
     } else {
@@ -81,7 +80,7 @@ export function MapCanvas({
     L.control.attribution({
       position: 'bottomleft',
       prefix: `<span class="text-[10px] text-zinc-600 font-mono">${
-        cartoApiKey ? 'CARTO Dark Matter &bull; OpenStreetMap' : mapboxToken ? 'Mapbox &bull; OpenStreetMap' : 'CARTO &bull; OpenStreetMap'
+        mapboxToken ? 'Mapbox &bull; OpenStreetMap' : 'CARTO &bull; OpenStreetMap'
       }</span>`,
     }).addTo(map);
 

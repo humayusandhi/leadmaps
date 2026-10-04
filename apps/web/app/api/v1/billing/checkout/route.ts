@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 
 const PLAN_PRICES: Record<string, { price_inr: number; credits: number }> = {
-  FREE: { price_inr: 0, credits: 25 },
-  STARTER: { price_inr: 1999, credits: 500 },
-  GROWTH: { price_inr: 4999, credits: 2500 },
-  PRO: { price_inr: 9999, credits: 6000 },
-  AGENCY: { price_inr: 24999, credits: 20000 },
+  FREE: { price_inr: 0, credits: 50 },
+  STARTER: { price_inr: 500, credits: 500 },
+  GROWTH: { price_inr: 2000, credits: 2000 },
+  PRO: { price_inr: 5000, credits: 5000 },
+  AGENCY: { price_inr: 15000, credits: 15000 },
 };
 
 /**

@@ -429,11 +429,11 @@ export default function HomePage() {
                   <h3 className="text-lg font-bold text-white">Free Explorer</h3>
                   <p className="text-xs text-slate-400 mt-1 font-sans">Test discovery in your home city.</p>
                   <div className="pt-3 flex items-baseline gap-1">
-                    <span className="text-3xl font-bold font-mono text-white">$0</span>
+                    <span className="text-3xl font-bold font-mono text-white">₹0</span>
                     <span className="text-xs font-mono text-slate-400">/ mo</span>
                   </div>
                   <span className="text-xs font-mono text-emerald-400 font-semibold block mt-1">
-                    50 credits / month
+                    50 credits (₹50 value)
                   </span>
                 </div>
                 <div className="space-y-2 pt-4 border-t border-white/[0.06] text-xs text-slate-300">
@@ -466,12 +466,12 @@ export default function HomePage() {
                   <p className="text-xs text-slate-400 mt-1 font-sans">For independent growth consultants.</p>
                   <div className="pt-3 flex items-baseline gap-1">
                     <span className="text-3xl font-bold font-mono text-white">
-                      ${Math.round(29 * discountMultiplier)}
+                      ₹{Math.round(500 * discountMultiplier)}
                     </span>
                     <span className="text-xs font-mono text-slate-400">/ mo</span>
                   </div>
                   <span className="text-xs font-mono text-emerald-400 font-semibold block mt-1">
-                    500 credits &bull; 3 seats
+                    500 credits (₹1/token) &bull; 3 seats
                   </span>
                 </div>
                 <div className="space-y-2 pt-4 border-t border-white/[0.06] text-xs text-slate-300">
@@ -507,12 +507,12 @@ export default function HomePage() {
                   <p className="text-xs text-slate-400 mt-1 font-sans">High-velocity outbound machine.</p>
                   <div className="pt-3 flex items-baseline gap-1">
                     <span className="text-3xl font-bold font-mono text-white">
-                      ${Math.round(69 * discountMultiplier)}
+                      ₹{Math.round(2000 * discountMultiplier)}
                     </span>
                     <span className="text-xs font-mono text-slate-400">/ mo</span>
                   </div>
                   <span className="text-xs font-mono text-emerald-400 font-semibold block mt-1">
-                    2,000 credits &bull; 10 seats
+                    2,000 credits (₹1/token) &bull; 10 seats
                   </span>
                 </div>
                 <div className="space-y-2 pt-4 border-t border-white/[0.06] text-xs text-slate-300">
@@ -549,12 +549,12 @@ export default function HomePage() {
                   <p className="text-xs text-slate-400 mt-1 font-sans">For SDR pods and large agencies.</p>
                   <div className="pt-3 flex items-baseline gap-1">
                     <span className="text-3xl font-bold font-mono text-white">
-                      ${Math.round(149 * discountMultiplier)}
+                      ₹{Math.round(6000 * discountMultiplier)}
                     </span>
                     <span className="text-xs font-mono text-slate-400">/ mo</span>
                   </div>
                   <span className="text-xs font-mono text-emerald-400 font-semibold block mt-1">
-                    6,000 credits &bull; Unlimited
+                    6,000 credits (₹1/token) &bull; Unlimited
                   </span>
                 </div>
                 <div className="space-y-2 pt-4 border-t border-white/[0.06] text-xs text-slate-300">

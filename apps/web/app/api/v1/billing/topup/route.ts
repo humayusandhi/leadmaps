@@ -13,22 +13,22 @@ const TOPUP_PACKS: Record<string, TopUpPack> = {
   pack_100: {
     id: 'pack_100',
     credits: 100,
-    price_inr: 499,
-    price_paise: 49900,
+    price_inr: 100,
+    price_paise: 10000,
     label: 'Micro Pack',
   },
   pack_500: {
     id: 'pack_500',
     credits: 500,
-    price_inr: 1999,
-    price_paise: 199900,
+    price_inr: 500,
+    price_paise: 50000,
     label: 'Standard Pack',
   },
   pack_2000: {
     id: 'pack_2000',
     credits: 2000,
-    price_inr: 6499,
-    price_paise: 649900,
+    price_inr: 2000,
+    price_paise: 200000,
     label: 'Growth Pack',
   },
 };

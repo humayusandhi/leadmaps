@@ -22,7 +22,7 @@ import {
 
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = React.useState<'monthly' | 'annual'>('annual');
-  const [currency, setCurrency] = React.useState<'USD' | 'INR'>('USD');
+  const [currency, setCurrency] = React.useState<'USD' | 'INR'>('INR');
   const [closedDeals, setClosedDeals] = React.useState<number>(2);
   const [retainerAmount, setRetainerAmount] = React.useState<number>(1500);
   const [openFaq, setOpenFaq] = React.useState<number | null>(null);
@@ -42,7 +42,7 @@ export default function PricingPage() {
       isPopular: false,
       cta: 'Start Free Trial',
       features: [
-        '50 credits / month',
+        '50 credits / month (₹50 token value)',
         'Google Places discovery',
         'Basic website status check',
         'Standard CSV export',
@@ -52,14 +52,14 @@ export default function PricingPage() {
       id: 'starter',
       name: 'Starter Prospector',
       description: 'Perfect for freelance consultants and boutique agency founders.',
-      priceUSD: Math.round(29 * discountMultiplier),
-      priceINR: Math.round(1999 * discountMultiplier),
+      priceUSD: Math.round(6 * discountMultiplier),
+      priceINR: Math.round(500 * discountMultiplier),
       credits: 500,
       seats: '3 Seats',
       isPopular: false,
       cta: 'Choose Starter',
       features: [
-        '500 search credits / month',
+        '500 search credits / month (₹1 / token)',
         'Full DOM harvester (SSL, TTFB, CMS)',
         'Multi-channel AI outreach (Email & WA)',
         '3 team seats with RBAC roles',
@@ -71,14 +71,14 @@ export default function PricingPage() {
       id: 'growth',
       name: 'Growth Agency',
       description: 'High-velocity outbound machine for scaling marketing agencies.',
-      priceUSD: Math.round(69 * discountMultiplier),
-      priceINR: Math.round(4999 * discountMultiplier),
+      priceUSD: Math.round(24 * discountMultiplier),
+      priceINR: Math.round(2000 * discountMultiplier),
       credits: 2000,
       seats: '10 Seats',
       isPopular: true,
       cta: 'Choose Growth',
       features: [
-        '2,000 search credits / month',
+        '2,000 search credits / month (₹1 / token)',
         'Deterministic 0–100 score waterfall',
         'AI Opportunity detection with quoted proof',
         'Custom lead lists & segmentation',
@@ -91,14 +91,14 @@ export default function PricingPage() {
       id: 'scale',
       name: 'Scale Enterprise',
       description: 'Bespoke volume and SLA for enterprise SDR pods and large agencies.',
-      priceUSD: Math.round(149 * discountMultiplier),
-      priceINR: Math.round(11999 * discountMultiplier),
+      priceUSD: Math.round(72 * discountMultiplier),
+      priceINR: Math.round(6000 * discountMultiplier),
       credits: 6000,
       seats: 'Unlimited',
       isPopular: false,
       cta: 'Choose Scale',
       features: [
-        '6,000 search credits / month',
+        '6,000 search credits / month (₹1 / token)',
         'Dedicated IP crawlers & priority rate limits',
         'Unlimited workspace members',
         'Custom CRM & webhook integrations',
@@ -111,13 +111,13 @@ export default function PricingPage() {
 
   const estimatedMonthlyRevenue = closedDeals * retainerAmount;
   const estimatedAnnualValue = estimatedMonthlyRevenue * 12;
-  const growthPlanCost = (currency === 'USD' ? 69 : 4999) * (isAnnual ? 0.8 : 1);
+  const growthPlanCost = (currency === 'USD' ? 24 : 2000) * (isAnnual ? 0.8 : 1);
   const netRoiMultiplier = Math.round(estimatedMonthlyRevenue / (growthPlanCost || 1));
 
   const faqs = [
     {
       q: 'How do LeadMap AI search credits work?',
-      a: 'LeadMap AI follows a transparent 1 credit per lead model: exactly 1 credit is used to discover, analyze, and save 1 verified business lead into your workspace pipeline. This covers full website crawling, TTFB performance testing, technical deficit diagnosis, and AI opportunity synthesis. Unused credits roll over each billing cycle on active paid plans.',
+      a: 'LeadMap AI follows a transparent 1 credit per lead model priced at exactly ₹1 per token/credit: 1 credit is used to discover, analyze, and save 1 verified business lead into your workspace pipeline. This covers full website crawling, TTFB performance testing, technical deficit diagnosis, and AI opportunity synthesis. Unused credits roll over each billing cycle on active paid plans.',
     },
     {
       q: 'Does LeadMap AI scrape Google Maps or websites illegally?',

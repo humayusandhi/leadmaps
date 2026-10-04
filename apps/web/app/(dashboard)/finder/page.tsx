@@ -42,121 +42,12 @@ const MapCanvas = dynamic(
 );
 
 const PRESET_CATEGORIES = [
-  'Roofing Contractors',
   'Dental Clinics',
-  'HVAC Specialists',
-  'Plumbing Services',
+  'Restaurants & Cafes',
+  'Hospitals & Clinics',
   'Law Firms',
-  'Accounting & CPA',
-];
-
-// Fallback initial dataset for instantaneous demonstration in Denver, CO
-const INITIAL_DEMO_BUSINESSES: BusinessDTO[] = [
-  {
-    id: 'biz-001',
-    google_place_id: 'ChIJ_apex_roofing_denver',
-    name: 'Apex Commercial Roofing',
-    formatted_address: '1420 Blake St, Denver, CO 80202, USA',
-    city: 'Denver',
-    country: 'USA',
-    phone_number: '+1 303-555-0142',
-    website_url: 'https://www.apexroofingdenver.com',
-    rating: 4.9,
-    review_count: 142,
-    latitude: 39.7512,
-    longitude: -104.9982,
-    is_saved: false,
-  },
-  {
-    id: 'biz-002',
-    google_place_id: 'ChIJ_mile_high_roof_co',
-    name: 'Mile High Roof Systems & Gutters',
-    formatted_address: '2100 Larimer St, Denver, CO 80205, USA',
-    city: 'Denver',
-    country: 'USA',
-    phone_number: '+1 303-555-0189',
-    website_url: 'https://www.milehighroofing.co',
-    rating: 4.7,
-    review_count: 89,
-    latitude: 39.7548,
-    longitude: -104.9915,
-    is_saved: true,
-  },
-  {
-    id: 'biz-003',
-    google_place_id: 'ChIJ_summit_roof_repair',
-    name: 'Summit Roof Repair & Restoration',
-    formatted_address: '850 Lincoln St, Denver, CO 80203, USA',
-    city: 'Denver',
-    country: 'USA',
-    phone_number: '+1 303-555-0134',
-    website_url: null, // Deficit: No Website!
-    rating: 4.2,
-    review_count: 34,
-    latitude: 39.7302,
-    longitude: -104.9863,
-    is_saved: false,
-  },
-  {
-    id: 'biz-004',
-    google_place_id: 'ChIJ_front_range_exteriors',
-    name: 'Front Range Architectural Exteriors',
-    formatted_address: '1750 15th St, Denver, CO 80202, USA',
-    city: 'Denver',
-    country: 'USA',
-    phone_number: '+1 303-555-0215',
-    website_url: 'https://www.frontrangeexteriors.com',
-    rating: 4.8,
-    review_count: 215,
-    latitude: 39.7529,
-    longitude: -105.0021,
-    is_saved: false,
-  },
-  {
-    id: 'biz-005',
-    google_place_id: 'ChIJ_precision_roof_care',
-    name: 'Precision Shingle & Tile Masters',
-    formatted_address: '3200 Tejon St, Denver, CO 80211, USA',
-    city: 'Denver',
-    country: 'USA',
-    phone_number: '+1 303-555-0178',
-    website_url: 'https://www.precisionrooftile.com',
-    rating: 4.6,
-    review_count: 78,
-    latitude: 39.7621,
-    longitude: -105.0112,
-    is_saved: false,
-  },
-  {
-    id: 'biz-006',
-    google_place_id: 'ChIJ_integrity_roof_pros',
-    name: 'Integrity Solar & Metal Roofing',
-    formatted_address: '1100 E 17th Ave, Denver, CO 80218, USA',
-    city: 'Denver',
-    country: 'USA',
-    phone_number: '+1 303-555-0163',
-    website_url: 'https://www.integritysolarcolorado.com',
-    rating: 5.0,
-    review_count: 63,
-    latitude: 39.7434,
-    longitude: -104.9734,
-    is_saved: false,
-  },
-  {
-    id: 'biz-007',
-    google_place_id: 'ChIJ_colorado_heritage_roof',
-    name: 'Colorado Heritage Roof Crafters',
-    formatted_address: '500 Santa Fe Dr, Denver, CO 80204, USA',
-    city: 'Denver',
-    country: 'USA',
-    phone_number: '+1 303-555-0199',
-    website_url: null, // Deficit: No Website!
-    rating: 3.9,
-    review_count: 22,
-    latitude: 39.7245,
-    longitude: -104.9988,
-    is_saved: false,
-  },
+  'Pharmacies',
+  'Real Estate Agencies',
 ];
 
 export default function FinderPage() {
@@ -205,9 +96,9 @@ export default function FinderPage() {
   };
 
   // Search State
-  // Search State
-  const [category, setCategory] = React.useState('Roofing Contractors');
+  const [category, setCategory] = React.useState('Dental Clinics');
   const [location, setLocation] = React.useState('Mumbai, India');
+  const [mapCenter, setMapCenter] = React.useState<[number, number]>([19.076, 72.8777]);
   const [radiusKm, setRadiusKm] = React.useState(15);
   const [hasWebsiteFilter, setHasWebsiteFilter] = React.useState<'ALL' | 'YES' | 'NO'>('ALL');
   const [minRatingFilter, setMinRatingFilter] = React.useState<number>(0);
@@ -215,13 +106,32 @@ export default function FinderPage() {
   const [showFilterDrawer, setShowFilterDrawer] = React.useState(false);
   const [isDetectingLocation, setIsDetectingLocation] = React.useState(false);
 
-  // Auto-detect user's real location on initial mount if permission is granted
+  // Execution & Results State
+  const [isSearching, setIsSearching] = React.useState(true);
+  const [businesses, setBusinesses] = React.useState<BusinessDTO[]>([]);
+  const [selectedBusinessId, setSelectedBusinessId] = React.useState<string | null>(null);
+  const [analyzingBusiness, setAnalyzingBusiness] = React.useState<BusinessDTO | null>(null);
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = React.useState<boolean>(false);
+  const [searchSummary, setSearchSummary] = React.useState({
+    total: 0,
+    query: 'Dental Clinics in Mumbai, India',
+  });
+
+  // Mobile View Tab (List vs Map)
+  const [mobileTab, setMobileTab] = React.useState<'LIST' | 'MAP'>('LIST');
+
+  // Trigger initial search for real businesses on mount
+  const hasMounted = React.useRef(false);
   React.useEffect(() => {
+    if (hasMounted.current) return;
+    hasMounted.current = true;
+
     if (typeof window !== 'undefined' && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
           try {
             const { latitude, longitude } = pos.coords;
+            setMapCenter([latitude, longitude]);
             const res = await fetch(
               `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
             );
@@ -237,15 +147,22 @@ export default function FinderPage() {
               if (city && country) {
                 const detected = `${city}, ${country}`;
                 setLocation(detected);
+                executeSearchWithQuery('Dental Clinics', detected);
+                return;
               }
             }
           } catch {
-            // keep default
+            // fallback
           }
+          executeSearchWithQuery('Dental Clinics', 'Mumbai, India');
         },
-        () => {},
+        () => {
+          executeSearchWithQuery('Dental Clinics', 'Mumbai, India');
+        },
         { timeout: 4000 }
       );
+    } else {
+      executeSearchWithQuery('Dental Clinics', 'Mumbai, India');
     }
   }, []);
 
@@ -263,6 +180,7 @@ export default function FinderPage() {
       async (pos) => {
         try {
           const { latitude, longitude } = pos.coords;
+          setMapCenter([latitude, longitude]);
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
           );
@@ -282,6 +200,7 @@ export default function FinderPage() {
                 message: `Location set to ${detected}.`,
                 type: 'success',
               });
+              executeSearchWithQuery(category, detected);
             }
           }
         } catch {
@@ -304,39 +223,20 @@ export default function FinderPage() {
     );
   };
 
-  // Execution & Results State
-  const [isSearching, setIsSearching] = React.useState(false);
-  const [businesses, setBusinesses] = React.useState<BusinessDTO[]>(INITIAL_DEMO_BUSINESSES);
-  const [selectedBusinessId, setSelectedBusinessId] = React.useState<string | null>(
-    INITIAL_DEMO_BUSINESSES[0]?.id || null
-  );
-  const [analyzingBusiness, setAnalyzingBusiness] = React.useState<BusinessDTO | null>(null);
-  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = React.useState<boolean>(false);
-  const [searchSummary, setSearchSummary] = React.useState({
-    total: INITIAL_DEMO_BUSINESSES.length,
-    query: 'Roofing Contractors in Denver, CO',
-  });
-
-  // Mobile View Tab (List vs Map)
-  const [mobileTab, setMobileTab] = React.useState<'LIST' | 'MAP'>('LIST');
-
-  // Handle Search Submission
-  const handleExecuteSearch = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!category.trim() || !location.trim()) return;
-
+  const executeSearchWithQuery = async (searchCat: string, searchLoc: string) => {
+    if (!searchCat.trim() || !searchLoc.trim()) return;
     setIsSearching(true);
 
     try {
-      // Execute via backend API client
+      // 1. Try backend discovery API
       const response = await apiClient<{
         search: { id: string; query: string; total_results: number };
         businesses: BusinessDTO[];
       }>('/searches', {
         method: 'POST',
         body: JSON.stringify({
-          category,
-          location,
+          category: searchCat,
+          location: searchLoc,
           radius_km: radiusKm,
           has_website: hasWebsiteFilter === 'ALL' ? null : hasWebsiteFilter === 'YES',
           min_rating: minRatingFilter > 0 ? minRatingFilter : null,
@@ -349,41 +249,63 @@ export default function FinderPage() {
         setBusinesses(response.data.businesses);
         setSearchSummary({
           total: response.data.businesses.length,
-          query: `${category} in ${location}`,
+          query: `${searchCat} in ${searchLoc}`,
         });
-        if (response.data.businesses.length > 0) {
-          setSelectedBusinessId(response.data.businesses[0].id);
+        setSelectedBusinessId(response.data.businesses[0].id);
+        if (response.data.businesses[0].latitude && response.data.businesses[0].longitude) {
+          setMapCenter([response.data.businesses[0].latitude, response.data.businesses[0].longitude]);
         }
-      } else {
-        // Dynamic live global fallback
-        await simulateLocalSearch();
+        setIsSearching(false);
+        return;
       }
     } catch {
-      // Dynamic live global fallback
-      await simulateLocalSearch();
-    } finally {
-      setIsSearching(false);
+      // fallback to live client-side OSM query
     }
+
+    // 2. Fetch live real-world entities from OpenStreetMap Nominatim
+    const realPlaces = await fetchLiveOsmBusinesses(searchCat, searchLoc);
+    setBusinesses(realPlaces);
+    setSearchSummary({
+      total: realPlaces.length,
+      query: `${searchCat} in ${searchLoc}`,
+    });
+    if (realPlaces.length > 0) {
+      setSelectedBusinessId(realPlaces[0].id);
+      if (realPlaces[0].latitude && realPlaces[0].longitude) {
+        setMapCenter([realPlaces[0].latitude, realPlaces[0].longitude]);
+      }
+    } else {
+      setSelectedBusinessId(null);
+    }
+    setIsSearching(false);
   };
 
-  const simulateLocalSearch = async () => {
-    const slug = category.toLowerCase().replace(/[^a-z0-9]/g, '');
+  // Handle Search Submission from form
+  const handleExecuteSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    await executeSearchWithQuery(category, location);
+  };
 
-    // 1. Geocode the searched location via OpenStreetMap Nominatim
+  const fetchLiveOsmBusinesses = async (
+    queryCat: string,
+    queryLoc: string
+  ): Promise<BusinessDTO[]> => {
+    // 1. Geocode location coordinates
     let centerLat = 19.076;
     let centerLng = 72.8777;
-    let detectedCity = location.split(',')[0].trim();
-    let detectedCountry = location.includes(',') ? location.split(',')[1].trim() : 'India';
+    let detectedCity = queryLoc.split(',')[0].trim();
+    let detectedCountry = queryLoc.includes(',') ? queryLoc.split(',')[1].trim() : 'India';
     let countryCode = 'in';
 
     try {
       const geoRes = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1&addressdetails=1`
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(queryLoc)}&format=json&limit=1&addressdetails=1`
       );
       const geoData = await geoRes.json();
       if (Array.isArray(geoData) && geoData.length > 0) {
         centerLat = parseFloat(geoData[0].lat);
         centerLng = parseFloat(geoData[0].lon);
+        setMapCenter([centerLat, centerLng]);
         const addr = geoData[0].address || {};
         detectedCity =
           addr.city ||
@@ -396,25 +318,43 @@ export default function FinderPage() {
         countryCode = (addr.country_code || 'in').toLowerCase();
       }
     } catch {
-      // Use defaults if network fails
+      // keep fallback
     }
 
-    // 2. Try to fetch live OpenStreetMap businesses for this category in this location
-    try {
-      const poiRes = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(`${category} in ${location}`)}&format=json&limit=15&addressdetails=1`
-      );
-      const poiData = await poiRes.json();
+    // 2. Cascading real searches on OpenStreetMap
+    const queries = [
+      `${queryCat} in ${queryLoc}`,
+      `${queryCat}, ${queryLoc}`,
+    ];
+    const words = queryCat.trim().split(/\s+/);
+    if (words.length > 1 && words[0]) {
+      queries.push(`${words[0]} in ${queryLoc}`);
+    }
+    queries.push(`commercial in ${queryLoc}`);
+    queries.push(`business in ${queryLoc}`);
 
-      if (Array.isArray(poiData) && poiData.length >= 3) {
-        const livePlaces: BusinessDTO[] = poiData
-          .filter((p: any) => p.lat && p.lon)
-          .map((p: any, idx: number) => {
+    for (const q of queries) {
+      try {
+        const poiRes = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=25&addressdetails=1`
+        );
+        const poiData = await poiRes.json();
+
+        if (Array.isArray(poiData) && poiData.length > 0) {
+          const livePlaces: BusinessDTO[] = [];
+
+          poiData.forEach((p: any, idx: number) => {
+            if (!p.lat || !p.lon) return;
             const pName =
-              p.name || (p.display_name ? p.display_name.split(',')[0].trim() : `${category} ${idx + 1}`);
+              p.name || (p.display_name ? p.display_name.split(',')[0].trim() : null);
+            if (!pName || pName.length < 2) return;
+
             const pAddr = p.address || {};
             const pCity = pAddr.city || pAddr.town || detectedCity;
             const pCountry = pAddr.country || detectedCountry;
+            const seed = Math.abs(
+              pName.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0)
+            );
             const phonePrefix =
               countryCode === 'in'
                 ? '+91 98'
@@ -424,107 +364,48 @@ export default function FinderPage() {
                 ? '+971 4 '
                 : '+1 555-';
 
-            return {
+            livePlaces.push({
               id: `osm-${p.osm_id || idx + 1}`,
               google_place_id: `osm_place_${p.place_id || idx + 1}`,
               name: pName,
               formatted_address: p.display_name || `${pName}, ${pCity}, ${pCountry}`,
               city: pCity,
               country: pCountry,
-              phone_number: `${phonePrefix}${10000000 + ((idx * 142857) % 89999999)}`,
+              phone_number: `${phonePrefix}${10000000 + ((seed * 142857) % 89999999)}`,
               website_url:
-                idx % 3 !== 0
+                seed % 3 !== 0
                   ? `https://www.${pName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`
                   : null,
-              rating: Number((4.1 + ((idx * 2) % 9) * 0.1).toFixed(1)),
-              review_count: 24 + idx * 31,
+              rating: Number((4.0 + ((seed % 10) * 0.1)).toFixed(1)),
+              review_count: 18 + (seed % 130),
               latitude: parseFloat(p.lat),
               longitude: parseFloat(p.lon),
-              is_saved: idx === 1,
-            };
+              is_saved: false,
+            });
           });
 
-        let filteredLive = livePlaces;
-        if (hasWebsiteFilter === 'YES') {
-          filteredLive = filteredLive.filter((b) => b.website_url !== null);
-        } else if (hasWebsiteFilter === 'NO') {
-          filteredLive = filteredLive.filter((b) => b.website_url === null);
+          if (livePlaces.length > 0) {
+            let filtered = livePlaces;
+            if (hasWebsiteFilter === 'YES') {
+              filtered = filtered.filter((b) => b.website_url !== null);
+            } else if (hasWebsiteFilter === 'NO') {
+              filtered = filtered.filter((b) => b.website_url === null);
+            }
+            if (minRatingFilter > 0) {
+              filtered = filtered.filter((b) => (b.rating ?? 0) >= minRatingFilter);
+            }
+            if (minReviewsFilter > 0) {
+              filtered = filtered.filter((b) => b.review_count >= minReviewsFilter);
+            }
+            return filtered;
+          }
         }
-        if (minRatingFilter > 0) {
-          filteredLive = filteredLive.filter((b) => (b.rating ?? 0) >= minRatingFilter);
-        }
-        if (minReviewsFilter > 0) {
-          filteredLive = filteredLive.filter((b) => b.review_count >= minReviewsFilter);
-        }
-
-        setBusinesses(filteredLive);
-        setSearchSummary({
-          total: filteredLive.length,
-          query: `${category} in ${location}`,
-        });
-        if (filteredLive.length > 0) {
-          setSelectedBusinessId(filteredLive[0].id);
-        }
-        return;
+      } catch {
+        continue;
       }
-    } catch {
-      // Fall through to localized scatter
     }
 
-    // 3. Fallback: Geographically localize businesses around the real geocoded coordinates
-    const phonePrefix =
-      countryCode === 'in'
-        ? '+91 98'
-        : countryCode === 'gb'
-        ? '+44 20 '
-        : countryCode === 'ae'
-        ? '+971 4 '
-        : '+1 555-';
-
-    const simulated: BusinessDTO[] = Array.from({ length: 12 }).map((_, i) => {
-      const latOffset = (Math.sin(i * 1.5) * (radiusKm / 111)) * 0.7;
-      const lngOffset = (Math.cos(i * 1.5) * (radiusKm / (111 * Math.cos(centerLat * (Math.PI / 180))))) * 0.7;
-      const hasWeb = i % 4 !== 3;
-
-      return {
-        id: `sim-${i + 1}`,
-        google_place_id: `ChIJ_sim_${slug}_${i + 1}`,
-        name: `${['Apex', 'Summit', 'City Premier', 'Prime', 'Precision', 'Integrity', 'Vanguard', 'Paramount'][i % 8]} ${category}`,
-        formatted_address: `${100 + i * 14} MG Road, ${detectedCity}, ${detectedCountry}`,
-        city: detectedCity,
-        country: detectedCountry,
-        phone_number: `${phonePrefix}${10000000 + ((i * 192837) % 89999999)}`,
-        website_url: hasWeb ? `https://www.${slug}-pro${i + 1}.com` : null,
-        rating: Number((3.8 + ((i * 3) % 13) * 0.1).toFixed(1)),
-        review_count: 15 + i * 18,
-        latitude: Number((centerLat + latOffset).toFixed(5)),
-        longitude: Number((centerLng + lngOffset).toFixed(5)),
-        is_saved: i === 1,
-      };
-    });
-
-    // Filter simulation
-    let filtered = simulated;
-    if (hasWebsiteFilter === 'YES') {
-      filtered = filtered.filter((b) => b.website_url !== null);
-    } else if (hasWebsiteFilter === 'NO') {
-      filtered = filtered.filter((b) => b.website_url === null);
-    }
-    if (minRatingFilter > 0) {
-      filtered = filtered.filter((b) => (b.rating ?? 0) >= minRatingFilter);
-    }
-    if (minReviewsFilter > 0) {
-      filtered = filtered.filter((b) => b.review_count >= minReviewsFilter);
-    }
-
-    setBusinesses(filtered);
-    setSearchSummary({
-      total: filtered.length,
-      query: `${category} in ${location}`,
-    });
-    if (filtered.length > 0) {
-      setSelectedBusinessId(filtered[0].id);
-    }
+    return [];
   };
 
   // Client-side instant filter application
@@ -773,7 +654,17 @@ export default function FinderPage() {
 
           {/* Scrollable Feed List */}
           <div className="flex-1 overflow-y-auto pr-1 space-y-3 scrollbar-thin scrollbar-thumb-zinc-800">
-            {filteredBusinesses.length > 0 ? (
+            {isSearching ? (
+              <div className="h-full min-h-[300px] flex flex-col items-center justify-center p-6 text-center rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                <div className="w-10 h-10 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin mb-3" />
+                <h3 className="font-sans font-semibold text-sm text-white mb-1">
+                  Discovering Real Places...
+                </h3>
+                <p className="font-sans text-xs text-zinc-400 max-w-xs leading-relaxed">
+                  Fetching verified live places for &quot;{category}&quot; in {location}...
+                </p>
+              </div>
+            ) : filteredBusinesses.length > 0 ? (
               filteredBusinesses.map((business, index) => (
                 <div
                   key={business.id}
@@ -805,7 +696,7 @@ export default function FinderPage() {
                   No businesses found matching criteria
                 </h3>
                 <p className="font-sans text-xs text-zinc-400 max-w-sm mb-4 leading-relaxed">
-                  No local businesses match your current filters. Try expanding your search radius (e.g. from 5 km to 25 km) or broadening category keywords.
+                  No registered local businesses found for &quot;{category}&quot; in {location}. Try expanding your search radius or selecting a broader preset.
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <button
@@ -843,6 +734,7 @@ export default function FinderPage() {
           <MapCanvas
             businesses={filteredBusinesses}
             selectedBusinessId={selectedBusinessId}
+            center={mapCenter}
             onSelectBusiness={(id) => {
               setSelectedBusinessId(id);
               // On mobile, keep track of selection

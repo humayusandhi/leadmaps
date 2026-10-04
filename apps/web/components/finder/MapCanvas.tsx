@@ -18,7 +18,7 @@ export function MapCanvas({
   businesses,
   selectedBusinessId,
   onSelectBusiness,
-  center = [39.7392, -104.9903],
+  center = [19.0760, 72.8777],
   zoom = 12,
   onSearchArea,
 }: MapCanvasProps) {
@@ -208,6 +208,13 @@ export function MapCanvas({
       map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
     }
   }, [businesses, mapLoaded]);
+
+  // Fly to center if no businesses plotted
+  React.useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || businesses.length > 0) return;
+    map.flyTo(center, zoom, { duration: 0.8 });
+  }, [center, zoom, businesses.length]);
 
   // Center on Selected Business
   React.useEffect(() => {

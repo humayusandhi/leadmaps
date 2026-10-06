@@ -230,7 +230,14 @@ export default function FinderPage() {
     try {
       // 1. Try backend discovery API
       const response = await apiClient<{
-        search: { id: string; query: string; total_results: number };
+        search: {
+          id: string;
+          query: string;
+          total_results: number;
+          provider?: string;
+          center?: { lat: number; lng: number; city: string; country: string };
+          google_api_error?: { status?: number; message?: string; code?: string } | null;
+        };
         businesses: BusinessDTO[];
       }>('/searches', {
         method: 'POST',
@@ -252,9 +259,20 @@ export default function FinderPage() {
           query: `${searchCat} in ${searchLoc}`,
         });
         setSelectedBusinessId(response.data.businesses[0].id);
-        if (response.data.businesses[0].latitude && response.data.businesses[0].longitude) {
+
+        if (response.data.search?.center?.lat && response.data.search?.center?.lng) {
+          setMapCenter([response.data.search.center.lat, response.data.search.center.lng]);
+        } else if (response.data.businesses[0].latitude && response.data.businesses[0].longitude) {
           setMapCenter([response.data.businesses[0].latitude, response.data.businesses[0].longitude]);
         }
+
+        if (response.data.search?.google_api_error?.message) {
+          setToast({
+            message: `Google Places: ${response.data.search.google_api_error.message}. Loaded verified OpenStreetMap POIs.`,
+            type: 'info',
+          });
+        }
+
         setIsSearching(false);
         return;
       }
